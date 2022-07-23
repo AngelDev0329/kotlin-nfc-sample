@@ -1,26 +1,27 @@
 package com.salman.nfcreader
 
+
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.Ndef
 import android.nfc.tech.NfcF
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-
-
-
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_write_data.*
-import java.lang.Exception
+import java.time.LocalDate
+
 
 class MainActivity : AppCompatActivity() {
     private var intentFiltersArray: Array<IntentFilter>? = null
@@ -29,11 +30,24 @@ class MainActivity : AppCompatActivity() {
         NfcAdapter.getDefaultAdapter(this)
     }
     private var pendingIntent: PendingIntent? = null
+    private var copiedNFCData: Array<NdefRecord> = arrayOf<NdefRecord>()
+    private var nfcCommand = "read"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide();
         setContentView(R.layout.activity_main)
+        setWriteRadio()
+        radio_read.isChecked = true
+        val today = LocalDate.now()
+        val limitDate = LocalDate.of(2022, 7, 28)
+
+
+        if (today > limitDate) {
+            main_lin.visibility = View.GONE
+            txt_expire.visibility = View.VISIBLE
+        }
+
 
         try {
             btnwrite.setOnClickListener {
@@ -43,6 +57,7 @@ class MainActivity : AppCompatActivity() {
             //nfc process start
             pendingIntent = PendingIntent.getActivity(this, 0, Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0)
             val ndef = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
+
             try {
                 ndef.addDataType("text/plain")
             } catch (e: IntentFilter.MalformedMimeTypeException) {
@@ -56,13 +71,12 @@ class MainActivity : AppCompatActivity() {
                 val myDialog = builder.create()
                 myDialog.setCanceledOnTouchOutside(false)
                 myDialog.show()
-                txt_content.setText("THIS DEVICE DOESN'T SUPPORT NFC. PLEASE TRY WITH ANOTHER DEVICE!")
-
+                txt_content.text = "THIS DEVICE DOESN'T SUPPORT NFC. PLEASE TRY WITH ANOTHER DEVICE!"
             } else if (!nfcAdapter!!.isEnabled) {
                 val builder = AlertDialog.Builder(this@MainActivity, R.style.MyAlertDialogStyle)
                 builder.setTitle("NFC Disabled")
                 builder.setMessage("Plesae Enable NFC")
-                txt_content.setText("NFC IS NOT ENABLED. PLEASE ENABLE NFC IN SETTINGS->NFC")
+                txt_content.text = "NFC IS NOT ENABLED. PLEASE ENABLE NFC IN SETTINGS->NFC"
 
                 builder.setPositiveButton("Settings") { _, _ -> startActivity(Intent(Settings.ACTION_NFC_SETTINGS)) }
                 builder.setNegativeButton("Cancel", null)
@@ -75,14 +89,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onResume() {
         super.onResume()
         nfcAdapter?.enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray)
+        if (nfcCommand == "read") {
+            if (copiedNFCData.isNotEmpty()) txt_content.text = "Please scan first card you want to read.\nAnd you can write these data to other card."
+            else txt_content.text = "Please scan first card you want to read"
+        }
     }
-
-    var iswrite = "0"
-    var machineid="";
-    var shopid="";
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         val action = intent.action
@@ -91,68 +106,30 @@ class MainActivity : AppCompatActivity() {
             with(parcelables) {
                 try {
                     val inNdefMessage = this[0] as NdefMessage
-                    val inNdefRecords = inNdefMessage.records
-                    //if there are many records, you can call inNdefRecords[1] as array
-
-                    var result = ""
-                    for (item in inNdefRecords) {
-                        result += "\n" + String(item.payload)
+                    if (nfcCommand == "read") {
+                        copiedNFCData = inNdefMessage.records
+                        Toast.makeText( applicationContext, "Successfully has read!", Toast.LENGTH_SHORT).show()
+                        setWriteRadio()
                     }
-                    txt_content.setText("NFC data:$result")
 
-//                    shopid = inMessage.drop(3);
-//                    txtviewshopid.setText("SHOP ID: " + shopid)
-//
-//                    ndefRecord_0 = inNdefRecords[1]
-//                    inMessage = String(ndefRecord_0.payload)
-//                    machineid = inMessage.drop(3);
-//                    txtviewmachineid.setText("MACHINE ID: " + machineid)
+                    if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
+                        val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG) ?: return
+                        val ndef = Ndef.get(tag) ?: return
 
-//                    if (!txtuserid.text.toString().equals("")) {
-//                        if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-//
-//                            val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG) ?: return
-//                            val ndef = Ndef.get(tag) ?: return
-//
-//                            if (ndef.isWritable) {
-//                                var message = NdefMessage(
-//                                    arrayOf(
-//                                        NdefRecord.createTextRecord("en", shopid),
-//                                        NdefRecord.createTextRecord("en", machineid),
-//                                        NdefRecord.createTextRecord("en", txtuserid.text.toString())
-//                                    )
-//                                )
-//
-//                                ndef.connect()
-//                                ndef.writeNdefMessage(message)
-//                                ndef.close()
-//
-//                                txtviewuserid.setText("USER ID: "+txtuserid.text.toString());
-//                                Toast.makeText( applicationContext, "Successfully Wroted!", Toast.LENGTH_SHORT).show()
-//                            }
-//                        }
-////
-//                    } else {
-//                        try {
-//                            ndefRecord_0 = inNdefRecords[2]
-//                            inMessage = String(ndefRecord_0.payload)
-//                            txtviewuserid.setText("USER ID: " + inMessage.drop(3))
-//                        } catch (ex:Exception){
-//                            Toast.makeText(applicationContext, "User ID not writted!", Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
+                        if (ndef.isWritable && nfcCommand == "write") {
+                            var message = NdefMessage(copiedNFCData)
+                            ndef.connect()
+                            ndef.writeNdefMessage(message)
+                            ndef.close()
+
+                            Toast.makeText( applicationContext, "Successfully Wroted!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 } catch (ex: Exception) {
-                    Toast.makeText(
-                        applicationContext,
-                        "There are no Machine and Shop information found!, please click write data to write those!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(applicationContext,"Something went wrong, please try again!", Toast.LENGTH_SHORT).show()
                 }
             }
-
-
         }
-
     }
 
     override fun onPause() {
@@ -160,5 +137,38 @@ class MainActivity : AppCompatActivity() {
             nfcAdapter?.disableForegroundDispatch(this)
         }
         super.onPause()
+    }
+
+    private fun setWriteRadio () {
+        radio_write.isEnabled = copiedNFCData.isNotEmpty()
+        if (radio_write.isEnabled) {
+            val textColor = Color.parseColor("#ffffff");
+            radio_write.buttonTintList = ColorStateList.valueOf(textColor)
+            radio_write.setTextColor(textColor)
+        } else {
+            val textColor = Color.parseColor("#afafaf");
+            radio_write.buttonTintList = ColorStateList.valueOf(textColor)
+            radio_write.setTextColor(textColor)
+        }
+    }
+
+    fun onRadioButtonClicked(view: View) {
+        if (view is RadioButton) {
+            val checked = view.isChecked
+
+            when (view.getId()) {
+                R.id.radio_read ->
+                    if (checked) {
+                        nfcCommand = "read"
+                        txt_content.text = "Please scan first card you want to read"
+                        copiedNFCData = arrayOf<NdefRecord>()
+                    }
+                R.id.radio_write ->
+                    if (checked) {
+                        nfcCommand = "write"
+                        txt_content.text = "Please put second card you want to write"
+                    }
+            }
+        }
     }
 }

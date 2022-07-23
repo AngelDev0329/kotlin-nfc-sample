@@ -89,9 +89,9 @@ class WriteData : AppCompatActivity() {
                         )
 
                         ndef.connect()
+
                         ndef.writeNdefMessage(message)
                         ndef.close()
-
                         Toast.makeText(applicationContext, "Successfully Wroted!", Toast.LENGTH_SHORT).show()
                     }
                 }
