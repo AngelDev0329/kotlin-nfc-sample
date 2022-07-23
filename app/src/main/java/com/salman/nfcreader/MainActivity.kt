@@ -7,11 +7,9 @@ import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.nfc.NdefMessage
-import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
-import android.nfc.tech.Ndef
-import android.nfc.tech.NfcF
+import android.nfc.tech.NfcV
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -25,13 +23,14 @@ import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
     private var intentFiltersArray: Array<IntentFilter>? = null
-    private val techListsArray = arrayOf(arrayOf(NfcF::class.java.name))
+    private val techListsArray = arrayOf(arrayOf(NfcV::class.java.name))
     private val nfcAdapter: NfcAdapter? by lazy {
         NfcAdapter.getDefaultAdapter(this)
     }
     private var pendingIntent: PendingIntent? = null
-    private var copiedNFCData: Array<NdefRecord> = arrayOf<NdefRecord>()
+    private var copiedNFCData: ByteArray = byteArrayOf()
     private var nfcCommand = "read"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,12 +41,10 @@ class MainActivity : AppCompatActivity() {
         val today = LocalDate.now()
         val limitDate = LocalDate.of(2022, 7, 28)
 
-
         if (today > limitDate) {
             main_lin.visibility = View.GONE
             txt_expire.visibility = View.VISIBLE
         }
-
 
         try {
             btnwrite.setOnClickListener {
@@ -57,12 +54,6 @@ class MainActivity : AppCompatActivity() {
             //nfc process start
             pendingIntent = PendingIntent.getActivity(this, 0, Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0)
             val ndef = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
-
-            try {
-                ndef.addDataType("text/plain")
-            } catch (e: IntentFilter.MalformedMimeTypeException) {
-                throw RuntimeException("fail", e)
-            }
             intentFiltersArray = arrayOf(ndef)
             if (nfcAdapter == null) {
                 val builder = AlertDialog.Builder(this@MainActivity, R.style.MyAlertDialogStyle)
@@ -107,21 +98,18 @@ class MainActivity : AppCompatActivity() {
                 try {
                     val inNdefMessage = this[0] as NdefMessage
                     if (nfcCommand == "read") {
-                        copiedNFCData = inNdefMessage.records
+                        copiedNFCData = inNdefMessage.toByteArray()
                         Toast.makeText( applicationContext, "Successfully has read!", Toast.LENGTH_SHORT).show()
                         setWriteRadio()
                     }
 
                     if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
                         val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG) ?: return
-                        val ndef = Ndef.get(tag) ?: return
-
-                        if (ndef.isWritable && nfcCommand == "write") {
-                            var message = NdefMessage(copiedNFCData)
-                            ndef.connect()
-                            ndef.writeNdefMessage(message)
-                            ndef.close()
-
+                        val nfcv: NfcV = NfcV.get(tag) ?: return
+                        if (nfcCommand == "write") {
+                            nfcv.connect()
+                            val response = nfcv.transceive(copiedNFCData)
+                            nfcv.close()
                             Toast.makeText( applicationContext, "Successfully Wroted!", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -161,7 +149,7 @@ class MainActivity : AppCompatActivity() {
                     if (checked) {
                         nfcCommand = "read"
                         txt_content.text = "Please scan first card you want to read"
-                        copiedNFCData = arrayOf<NdefRecord>()
+                        copiedNFCData = byteArrayOf()
                     }
                 R.id.radio_write ->
                     if (checked) {
