@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/bg">
 
     <LinearLayout
-        android:id="@+id/main_lin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -16,75 +13,79 @@
         android:gravity="center"
         android:layout_alignParentTop="true"
         android:layout_above="@id/input_group">
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
-            android:text="NFC Demo"
+            android:text="Read NFC Data"
             android:textColor="#FFFFFF"
-            android:layout_marginTop="40dp"
             android:textSize="20sp"/>
-
         <TextView
-            android:id="@+id/txt_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
-            android:text="Bring near the NFC tag to the phone!"
+            android:text="Bring near the NFC tag to the device!"
             android:textColor="#FFFFFF"
-            android:layout_marginTop="20dp"
             android:textSize="16sp"/>
-
-        <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginTop="20dp"
-            android:orientation="horizontal">
-
-            <RadioButton
-                android:id="@+id/radio_read"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Read NFC data"
-                android:buttonTint="#FFFFFF"
-                android:textColor="#FFFFFF"
-                android:onClick="onRadioButtonClicked"/>
-
-            <RadioButton
-                android:id="@+id/radio_write"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Write NFC data"
-                android:layout_marginLeft="20dp"
-                android:buttonTint="#FFFFFF"
-                android:textColor="#FFFFFF"
-                android:onClick="onRadioButtonClicked"/>
-
-        </RadioGroup>
-
-        <TextView
-            android:id="@+id/txt_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:text="asdfadf"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:layout_marginTop="40dp" />
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/input_group"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="50dp"
         android:layout_alignParentBottom="true"
-        android:gravity="bottom|center">
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textStyle="bold"
+            android:text="Shop ID will be here!"
+            android:textColor="#FFFFFF"
+            android:id="@+id/txtviewshopid"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textStyle="bold"
+            android:text="Machine ID will be here!"
+            android:textColor="#FFFFFF"
+            android:id="@+id/txtviewmachineid"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textStyle="bold"
+            android:text="User ID will be here"
+            android:textColor="#FFFFFF"
+            android:id="@+id/txtviewuserid"
+            android:textSize="20sp"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_top"
+            android:hint="User ID"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/txtuserid"
+            android:inputType="textPersonName"
+            android:padding="15dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="All the Readed contents will display above!"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"/>
 
         <Button
             android:layout_width="match_parent"
@@ -96,20 +97,8 @@
             android:textAllCaps="false"
             android:id="@+id/btnwrite"
             android:textColor="#0099ff"
-            android:visibility="gone"
             android:textSize="17sp"/>
 
-        <TextView
-            android:id="@+id/txt_expire"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:text="This app was expired from testing."
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="30dp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            android:textSize="18sp"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -119,4 +108,4 @@
             android:textColor="#FFFFFF"
             android:textSize="13sp"/>
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

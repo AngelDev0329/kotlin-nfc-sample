@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_write_data.*
 
+
 class WriteData : AppCompatActivity() {
     private var intentFiltersArray: Array<IntentFilter>? = null
     private val techListsArray = arrayOf(arrayOf(NfcF::class.java.name))
@@ -34,7 +35,6 @@ class WriteData : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
-
         //nfc process start
         pendingIntent = PendingIntent.getActivity(
             this, 0, Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0
@@ -45,7 +45,6 @@ class WriteData : AppCompatActivity() {
         } catch (e: IntentFilter.MalformedMimeTypeException) {
             throw RuntimeException("fail", e)
         }
-
         intentFiltersArray = arrayOf(ndef)
         if (nfcAdapter == null) {
             val builder = AlertDialog.Builder(this@WriteData, R.style.MyAlertDialogStyle)
@@ -54,10 +53,12 @@ class WriteData : AppCompatActivity() {
             val myDialog = builder.create()
             myDialog.setCanceledOnTouchOutside(false)
             myDialog.show()
+           // txttext.setText("THIS DEVICE DOESN'T SUPPORT NFC. PLEASE TRY WITH ANOTHER DEVICE!")
         } else if (!nfcAdapter!!.isEnabled) {
             val builder = AlertDialog.Builder(this@WriteData, R.style.MyAlertDialogStyle)
             builder.setTitle("NFC Disabled")
             builder.setMessage("Plesae Enable NFC")
+           // txttext.setText("NFC IS NOT ENABLED. PLEASE ENABLE NFC IN SETTINGS->NFC")
             builder.setPositiveButton("Settings") { _, _ -> startActivity(Intent(Settings.ACTION_NFC_SETTINGS)) }
             builder.setNegativeButton("Cancel", null)
             val myDialog = builder.create()
@@ -73,34 +74,57 @@ class WriteData : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        try {
-            if(txtdata.text.toString() != "") {
-                val data = txtdata.text.toString()
+try {
 
-                if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-                    val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG) ?: return
-                    val ndef = Ndef.get(tag) ?: return
+    if(!txtmachineid.text.toString().equals("") && !txtshopid.text.toString().equals("") ) {
 
-                    if (ndef.isWritable) {
-                       var message = NdefMessage(
-                            arrayOf(
-                                NdefRecord.createTextRecord("en", data)
-                            )
-                        )
 
-                        ndef.connect()
 
-                        ndef.writeNdefMessage(message)
-                        ndef.close()
-                        Toast.makeText(applicationContext, "Successfully Wroted!", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else {
-                Toast.makeText(applicationContext, "Write on text box!", Toast.LENGTH_SHORT).show()
+        val shopid=txtshopid.text.toString()
+        val machineid=txtmachineid.text.toString()
+
+        if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action
+            || NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action
+        ) {
+
+            val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG) ?: return
+            val ndef = Ndef.get(tag) ?: return
+
+            if (ndef.isWritable) {
+
+               var message = NdefMessage(
+                    arrayOf(
+                        NdefRecord.createTextRecord("en", shopid),
+                        NdefRecord.createTextRecord("en", machineid)
+//                        NdefRecord.createTextRecord("en", userid)
+
+                    )
+                )
+
+
+                ndef.connect()
+                ndef.writeNdefMessage(message)
+                ndef.close()
+
+
+                Toast.makeText(applicationContext, "Successfully Wroted!", Toast.LENGTH_SHORT)
+                    .show()
             }
-        } catch (Ex:Exception) {
-            Toast.makeText(applicationContext, Ex.message, Toast.LENGTH_SHORT).show()
         }
+    }
+    else
+    {
+        Toast.makeText(applicationContext, "Write on text box!", Toast.LENGTH_SHORT).show()
+    }
+}
+catch (Ex:Exception)
+{
+    Toast.makeText(applicationContext, Ex.message, Toast.LENGTH_SHORT).show()
+}
+
+
+
+
     }
 
     override fun onPause() {

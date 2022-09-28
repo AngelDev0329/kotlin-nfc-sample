@@ -30,27 +30,6 @@
             android:textColor="#FFFFFF"
             android:textSize="16sp"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="250dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif"
-            android:text="Write to content..."
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp"/>
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="@drawable/edit_text_top"
-            android:id="@+id/txtdata"
-            android:inputType="textMultiLine"
-            android:gravity="top|left"
-            android:padding="10dp" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -64,6 +43,29 @@
         android:layout_alignParentBottom="true"
         android:gravity="center">
 
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_top"
+            android:hint="Shop ID"
+            android:id="@+id/txtshopid"
+            android:layout_marginBottom="10dp"
+            android:inputType="textPersonName"
+            android:padding="15dp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_top"
+            android:hint="Machine ID"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/txtmachineid"
+            android:inputType="textPersonName"
+            android:padding="15dp" />
+
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -75,5 +77,15 @@
             android:id="@+id/btnback"
             android:textColor="#0099ff"
             android:textSize="17sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textAlignment="textEnd"
+            android:text="Testing Purposes"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"/>
+
     </LinearLayout>
 </RelativeLayout>
